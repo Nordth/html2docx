@@ -177,6 +177,7 @@ class HtmlToDocx(HTMLParser):
             'table > tfoot > tr'
         ]
         self.table_style = DEFAULT_TABLE_STYLE
+        self.table_class_to_style = {}
         self.paragraph_style = DEFAULT_PARAGRAPH_STYLE
 
     def set_initial_attrs(self, document=None):
@@ -345,6 +346,15 @@ class HtmlToDocx(HTMLParser):
                 self.table.style = self.table_style
             except KeyError as e:
                 raise ValueError(f"Unable to apply style {self.table_style}.") from e
+
+        if "class" in table_soup.attrs:
+            classes = table_soup.attrs["class"]
+            for cl in classes:
+                if cl in self.table_class_to_style:
+                    try:
+                        self.table.style = self.table_class_to_style[cl]
+                    except KeyError as e:
+                        raise ValueError(f"Unable to apply style {self.table_class_to_style[cl]}.") from e
 
         rows = self.get_table_rows(table_soup)
         cell_row = 0
